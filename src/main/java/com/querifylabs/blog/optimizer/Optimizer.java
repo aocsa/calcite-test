@@ -7,11 +7,9 @@ import org.apache.calcite.config.CalciteConnectionConfigImpl;
 import org.apache.calcite.config.CalciteConnectionProperty;
 import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.jdbc.JavaTypeFactoryImpl;
-import org.apache.calcite.plan.Contexts;
-import org.apache.calcite.plan.ConventionTraitDef;
-import org.apache.calcite.plan.RelOptCluster;
-import org.apache.calcite.plan.RelOptCostImpl;
-import org.apache.calcite.plan.RelTraitSet;
+import org.apache.calcite.plan.*;
+import org.apache.calcite.plan.hep.HepPlanner;
+import org.apache.calcite.plan.hep.HepProgramBuilder;
 import org.apache.calcite.plan.volcano.VolcanoPlanner;
 import org.apache.calcite.prepare.CalciteCatalogReader;
 import org.apache.calcite.prepare.Prepare;
@@ -93,6 +91,9 @@ public class Optimizer {
         SqlValidator validator = SqlValidatorUtil.newValidator(operatorTable, catalogReader, typeFactory, validatorConfig);
 
         VolcanoPlanner planner = new VolcanoPlanner(RelOptCostImpl.FACTORY, Contexts.of(config));
+//        HepProgramBuilder programBuilder = new HepProgramBuilder();
+//        AbstractRelOptPlanner planner = new HepPlanner(programBuilder.build(), Contexts.of(config));
+
         planner.addRelTraitDef(ConventionTraitDef.INSTANCE);
 
         RelOptCluster cluster = RelOptCluster.create(planner, new RexBuilder(typeFactory));

@@ -112,7 +112,8 @@ public class DrillRelMdDistinctRowCount extends RelMdDistinctRowCount{
       return getDistinctRowCountInternal(((DrillJoinRelBase) rel), mq, groupKey, predicate);
     }else if (rel instanceof LogicalJoin && !DrillRelOptUtil.guessRows(rel)) {
       //Assume ndv is unaffected by the join
-      return getDistinctRowCountInternal(((DrillJoinRelBase) rel), mq, groupKey, predicate);
+//      return getDistinctRowCountInternal(((DrillJoinRelBase) rel), mq, groupKey, predicate);
+      return super.getDistinctRowCount(rel, mq, groupKey, predicate);
     }
     else if (rel instanceof RelSubset && !DrillRelOptUtil.guessRows(rel)) {
       if (((RelSubset) rel).getBest() != null) {

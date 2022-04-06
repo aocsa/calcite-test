@@ -32,6 +32,10 @@ public class HashJoinPrule extends ConverterRule {
                     EnumerableConvention.INSTANCE, "EnumerableJoinRule")
             .withRuleFactory(HashJoinPrule::new);
 
+
+    public static final RelOptRule INSTANCE =
+            HashJoinPrule.DEFAULT_CONFIG.toRule(HashJoinPrule.class);
+
     /** Rule that matches Filter on TableScan. */
     //
    //  ,

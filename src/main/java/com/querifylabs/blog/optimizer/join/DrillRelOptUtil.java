@@ -130,6 +130,7 @@ public class DrillRelOptUtil {
      * @return TRUE if the estimate is a guess, FALSE otherwise
      * */
     public static boolean guessRows(RelNode rel) {
+        //@TODO
         return false;
 //
 //        if (rel instanceof RelSubset) {

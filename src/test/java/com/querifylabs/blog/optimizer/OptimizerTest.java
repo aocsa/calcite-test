@@ -1,11 +1,13 @@
 package com.querifylabs.blog.optimizer;
 
 import com.blazingdb.calcite.drill.DrillStatsTable;
+import com.blazingdb.calcite.rules.*;
 import com.querifylabs.blog.optimizer.join.HashJoinPrule;
 import com.querifylabs.blog.optimizer.join.JoinPruleBase;
 import org.apache.calcite.adapter.enumerable.EnumerableConvention;
 import org.apache.calcite.adapter.enumerable.EnumerableRules;
 import org.apache.calcite.config.CalciteSystemProperty;
+import org.apache.calcite.interpreter.Bindables;
 import org.apache.calcite.plan.RelOptRule;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.externalize.RelWriterImpl;
@@ -132,14 +134,22 @@ public class OptimizerTest {
 
         Optimizer optimizer = Optimizer.create(schema);
 
+//        String sql =
+//                "SELECT *\n" +
+//                        "FROM lineitem\n" +
+//                        "    inner join orders on l_orderkey = o_orderkey\n" +
+//                        "    inner join customer on o_custkey = c_custkey\n" +
+//                        "    inner join partsupp on ps_partkey = l_partkey\n" +
+//                        "    inner join supplier on l_suppkey = s_suppkey\n" +
+//                        "    inner join part on ps_partkey = p_partkey";
+
         String sql =
                 "SELECT *\n" +
                         "FROM lineitem\n" +
                         "    inner join orders on l_orderkey = o_orderkey\n" +
                         "    inner join customer on o_custkey = c_custkey\n" +
                         "    inner join partsupp on ps_partkey = l_partkey\n" +
-                        "    inner join supplier on l_suppkey = s_suppkey\n" +
-                        "    inner join part on ps_partkey = p_partkey";
+                        "    inner join supplier on l_suppkey = s_suppkey";
 
         SqlNode sqlTree = optimizer.parse(sql);
         SqlNode validatedSqlTree = optimizer.validate(sqlTree);
@@ -147,7 +157,7 @@ public class OptimizerTest {
 
         print("AFTER CONVERSION", relTree);
 
-        CalciteSystemProperty.COMMUTE = true;
+//        CalciteSystemProperty.COMMUTE = true;
 
         RuleSet rules = RuleSets.ofList(
             CoreRules.FILTER_TO_CALC,
@@ -155,20 +165,29 @@ public class OptimizerTest {
             CoreRules.FILTER_CALC_MERGE,
             CoreRules.PROJECT_CALC_MERGE,
             CoreRules.FILTER_INTO_JOIN,
+CoreRules.JOIN_TO_MULTI_JOIN,
+CoreRules.MULTI_JOIN_OPTIMIZE_BUSHY,
 //            CoreRules.JOIN_ASSOCIATE,
-                CalciteSystemProperty.COMMUTE.value()
-                        ? CoreRules.JOIN_ASSOCIATE
-                        : CoreRules.PROJECT_MERGE,
 
-                CoreRules.JOIN_PROJECT_BOTH_TRANSPOSE,
-            CoreRules.JOIN_COMMUTE, // Works better
+            CoreRules.JOIN_PROJECT_BOTH_TRANSPOSE,
+            CoreRules.JOIN_COMMUTE,
+
+//        Bindables.BINDABLE_AGGREGATE_RULE,
+//        Bindables.BINDABLE_FILTER_RULE,
+//        Bindables.BINDABLE_JOIN_RULE,
+//        Bindables.BINDABLE_TABLE_SCAN_RULE,
+//        Bindables.BINDABLE_PROJECT_RULE,
+//        Bindables.BINDABLE_SORT_RULE
+
             EnumerableRules.ENUMERABLE_TABLE_SCAN_RULE,
             EnumerableRules.ENUMERABLE_PROJECT_RULE,
             EnumerableRules.ENUMERABLE_FILTER_RULE,
             EnumerableRules.ENUMERABLE_CALC_RULE,
             EnumerableRules.ENUMERABLE_AGGREGATE_RULE,
+
             OptimizerTest.ENUMERABLE_JOIN_RULE
-//            EnumerableRules.ENUMERABLE_JOIN_RULE
+//            EnumJoinAssociateRule.INSTANCE
+
         );
 
 
